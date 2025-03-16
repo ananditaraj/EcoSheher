@@ -10,7 +10,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ecosheher.authentication.AuthViewModel
 import com.example.ecosheher.authentication.LoginPage
 import com.example.ecosheher.authentication.SignUpPage
-import com.example.ecosheher.authentication.SignUpPage
 import com.example.ecosheher.bottomNavPages.HomePage
 
 
@@ -26,7 +25,7 @@ fun SetNavGraph(modifier: Modifier = Modifier, authViewModel: AuthViewModel){
             LoginPage(modifier,navController,authViewModel)
         }
         composable(Routes.SignUp.routes) {
-            SignUpPage(modifier, navController,authViewModel)
+            SignUpPage(modifier,navController,authViewModel)
         }
         composable(Routes.Home.routes) {
             HomePage(modifier,navController,authViewModel)
