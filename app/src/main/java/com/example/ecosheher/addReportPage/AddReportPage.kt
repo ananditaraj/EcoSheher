@@ -1,9 +1,16 @@
 package com.example.ecosheher.addReportPage
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,21 +52,45 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.ecosheher.R
 import com.example.ecosheher.bottomNavPages.BottomNavigationBar
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import java.util.Locale
+import android.Manifest
+import android.location.Location
 
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReportPage(navController : NavController){
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
+
+    //location -> joy maa kali , ohm nom shiva
+    var currentAddress by remember { mutableStateOf("Click to get location") }
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    // Permission Request Launcher
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            getCurrentLocation(context, fusedLocationClient) { location ->
+                currentAddress = getAddressFromLocation(context, location.latitude, location.longitude)
+            }
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val categories = listOf("Roads & StreetLights", "Waste Management", "Water & Utilities", "Parks and Recreation")
     val categoryIcons = mapOf(
@@ -219,12 +250,20 @@ fun AddReportPage(navController : NavController){
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    "Click to add your current location",
-                    fontSize = 14.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
-                )
+                Column {
+                    Text(
+                        "Click to add your current location",
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp)) 
+                    Text(
+                        text = currentAddress, // Display the fetched address
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
                 Icon(
                     painter = painterResource(id = R.drawable.locationicon),
                     contentDescription = "Location",
@@ -232,10 +271,57 @@ fun AddReportPage(navController : NavController){
                     modifier = Modifier
                         .size(25.dp)
                         .clickable{
-                            Toast.makeText(context, "Location Clicked", Toast.LENGTH_SHORT).show()
+                           // Toast.makeText(context, "Location Clicked", Toast.LENGTH_SHORT).show()
+                            if (ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                getCurrentLocation(context, fusedLocationClient) { location ->
+                                    currentAddress = getAddressFromLocation(context, location.latitude, location.longitude)
+                                }
+                            } else {
+                                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }
                         }
                 )
             }
         }
+    }
+}
+
+
+
+// Function to Get Current Location
+@SuppressLint("MissingPermission")
+fun getCurrentLocation(
+    context: Context,
+    fusedLocationClient: FusedLocationProviderClient,
+    onLocationReceived: (Location) -> Unit
+) {
+    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+        .addOnSuccessListener { location ->
+            if (location != null) {
+                onLocationReceived(location)
+            } else {
+                Toast.makeText(context, "Unable to fetch location", Toast.LENGTH_SHORT).show()
+            }
+        }
+}
+
+
+// Function to Convert Latitude & Longitude to Address
+fun getAddressFromLocation(context: Context, latitude: Double, longitude: Double): String {
+    return try {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+        if (!addresses.isNullOrEmpty()) {
+            val address = addresses[0]
+            "${address.locality ?: "Unknown"}, ${address.postalCode ?: ""}"
+        } else {
+            "Location Not Found"
+        }
+    } catch (e: Exception) {
+        "Error Fetching Location"
     }
 }
