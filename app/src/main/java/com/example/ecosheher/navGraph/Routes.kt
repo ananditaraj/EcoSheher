@@ -12,4 +12,10 @@ sealed class Routes(val routes: String) {
     object MyCity : Routes("mycity")
     object AcrossIndia : Routes("acrossindia")
     object Awareness : Routes("awareness")
+
+    //My Account
+    object MyAccount : Routes("myaccount")
+
+    //Add Reports
+    object AddReport : Routes("addreport")
 }

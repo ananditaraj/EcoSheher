@@ -6,11 +6,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.ecosheher.addReportPage.AddReportPage
 
 import com.example.ecosheher.authentication.AuthViewModel
 import com.example.ecosheher.authentication.LoginPage
 import com.example.ecosheher.authentication.SignUpPage
+import com.example.ecosheher.bottomNavPages.AcrossIndiaPage
+import com.example.ecosheher.bottomNavPages.AwarenessPage
 import com.example.ecosheher.bottomNavPages.HomePage
+import com.example.ecosheher.bottomNavPages.MyCityPage
+import com.example.ecosheher.myAccount.MyAccountPage
 
 
 @Composable
@@ -29,6 +34,21 @@ fun SetNavGraph(modifier: Modifier = Modifier, authViewModel: AuthViewModel){
         }
         composable(Routes.Home.routes) {
             HomePage(modifier,navController,authViewModel)
+        }
+        composable(Routes.MyCity.routes) {
+            MyCityPage()
+        }
+        composable(Routes.AcrossIndia.routes) {
+            AcrossIndiaPage()
+        }
+        composable(Routes.Awareness.routes) {
+            AwarenessPage()
+        }
+        composable(Routes.MyAccount.routes) {
+            MyAccountPage()
+        }
+        composable(Routes.AddReport.routes) {
+            AddReportPage(navController)
         }
     }
 }
