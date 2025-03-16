@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1001332310007",
+    "project_id": "ecosheher-79a58",
+    "storage_bucket": "ecosheher-79a58.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001332310007:android:137094157d6d868368f8f2",
+        "android_client_info": {
+          "package_name": "com.example.ecosheher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXF7LZN_lUaOVwdnfgD4GOiG6d3mUPaHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
