@@ -1,6 +1,7 @@
 package com.example.ecosheher.authentication
 
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,18 +11,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +43,21 @@ fun LoginPage(modifier: Modifier = Modifier,navController: NavController, authVi
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val authState = authViewModel.authState.observeAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Authenticated -> {
+                Toast.makeText(context, "Sign In successfully!", Toast.LENGTH_SHORT).show()
+                navController.navigate("homepage")
+            }
+            is AuthState.Error-> Toast.makeText(context,
+                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -98,11 +118,17 @@ fun LoginPage(modifier: Modifier = Modifier,navController: NavController, authVi
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = { /* Handle Login */ },
+        if (authState.value is AuthState.Loading) {
+            CircularProgressIndicator(
+                color = colorResource(R.color.main_color)
+            )
+        } else {
+            Button(
+                onClick = { authViewModel.login(email, password) },
 
             ) {
-            Text("Sing In")
+                Text("Sign In")
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
