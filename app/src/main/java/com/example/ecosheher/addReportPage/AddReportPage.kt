@@ -257,7 +257,7 @@ fun AddReportPage(navController : NavController){
                         color = Color.Black,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(4.dp)) 
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = currentAddress, // Display the fetched address
                         fontSize = 12.sp,
