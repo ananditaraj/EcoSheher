@@ -42,7 +42,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
         }
     }
 
-    Text(text = "Home Page")
+    Text(text = "Home Pagesss")
 
 
 }
