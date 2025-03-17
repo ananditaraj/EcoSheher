@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +68,10 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     implementation ("com.google.android.gms:play-services-location:21.0.1")
+
+    //cloudinary
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+   
+        implementation("com.cloudinary:cloudinary-android:2.3.1")
+
 }

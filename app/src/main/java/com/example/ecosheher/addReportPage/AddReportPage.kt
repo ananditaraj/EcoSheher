@@ -63,6 +63,10 @@ import com.google.android.gms.location.Priority
 import java.util.Locale
 import android.Manifest
 import android.location.Location
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import com.example.ecosheher.cloudinary.CloudinaryHelper
+import com.example.ecosheher.firebases.saveReportToFirebase
 
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -286,6 +290,25 @@ fun AddReportPage(navController : NavController){
                         }
                 )
             }
+            Button(
+                onClick = { selectedImageUri?.let { uri ->
+                    CloudinaryHelper.uploadImage(context, uri,
+                        onSuccess = { imageUrl ->
+                            saveReportToFirebase(context,navController,imageUrl, title, description, selectedCategory, currentAddress)
+                        },
+                        onFailure = { error ->
+                            Toast.makeText(context, "Upload Failed: ${error.message}", Toast.LENGTH_LONG).show()
+                        })
+                } ?: Toast.makeText(context, "No Image Selected", Toast.LENGTH_SHORT).show()  },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.main_color))
+            ) {
+                Text("Post Issue", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+
         }
     }
 }
