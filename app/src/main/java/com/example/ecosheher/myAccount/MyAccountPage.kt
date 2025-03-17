@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,7 +41,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.ecosheher.bottomNavPages.BottomNavigationBar
 import com.example.ecosheher.firebases.FirestoreHelper
 import com.example.ecosheher.firebases.Report
+import com.example.ecosheher.navGraph.Routes
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,14 +54,20 @@ fun MyAccountPage(navController: NavController){
     val context = LocalContext.current
     var reports by remember { mutableStateOf(emptyList<Report>()) }
 
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
     LaunchedEffect(Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
-            FirestoreHelper.getReports(userId,
-                onSuccess = { reportList -> reports = reportList },
-                onFailure = { error ->
-                    Toast.makeText(context, "Failed to fetch reports: ${error.message}", Toast.LENGTH_SHORT).show()
-                })
+            // Fetch reports list based on userId
+            val db = FirebaseFirestore.getInstance()
+            db.collection("reports").whereEqualTo("userId", userId).get()
+                .addOnSuccessListener { documents ->
+                    val reportList = documents.mapNotNull { it.toObject(Report::class.java) }
+                    reports = reportList
+                }
+                .addOnFailureListener { error ->
+                    Toast.makeText(context, "Failed to fetch reports: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                }
         } else {
             Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
         }
@@ -79,10 +93,9 @@ fun MyAccountPage(navController: NavController){
             if (reports.isEmpty()) {
                 Text("No reports available", fontSize = 16.sp, color = Color.Gray)
             } else {
-//
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                    items(reports){ report->
-                       ReportItem(report)
+                       ReportItem(report,navController)
                    }
                 }
             }
@@ -91,26 +104,41 @@ fun MyAccountPage(navController: NavController){
 }
 
 @Composable
-fun ReportItem(report: Report) {
-    Column(
+fun ReportItem(report: Report, navController: NavController) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-            .padding(12.dp)
+            .clickable {
+                val reportJson = Gson().toJson(report)  // Convert object to JSON
+                val encodedJson = URLEncoder.encode(reportJson, StandardCharsets.UTF_8.toString())
+                    .replace("+", "%20")
+                navController.navigate("${Routes.IssueDetails.routes}/$encodedJson")
+            },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(model = report.imageUrl),
-            contentDescription = "Report Image",
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp),
-            contentScale = ContentScale.Crop
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Title: ${report.title}", fontWeight = FontWeight.Bold)
-        Text("Description: ${report.description}")
-        Text("Category: ${report.category}")
-        Text("Location: ${report.location}")
+                .padding(8.dp)
+                .padding(10.dp)
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(model = report.imageUrl),
+                contentDescription = "Report Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Title: ${report.title}", fontWeight = FontWeight.Bold)
+            Text("Description: ${report.description}")
+            Text("Category: ${report.category}")
+            Text("Location: ${report.location}")
+            Spacer(modifier = Modifier.height(4.dp))
+            Text("Upvotes: ${report.upvoteCount}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }

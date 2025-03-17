@@ -18,4 +18,7 @@ sealed class Routes(val routes: String) {
 
     //Add Reports
     object AddReport : Routes("addreport")
+
+    //Issue Details Screen
+    object IssueDetails : Routes("issuedetails")
 }

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.ecosheher.R
 
 import com.example.ecosheher.authentication.AuthState
@@ -112,6 +113,7 @@ fun BottomNavigationBar(navController: NavController) {
         "AcrossIndia" to R.drawable.acrossindia,
         "Awareness" to R.drawable.awareness
     )
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     BottomAppBar(
         modifier = Modifier
@@ -138,6 +140,13 @@ fun BottomNavigationBar(navController: NavController) {
                     )
                 }
             } else {
+                val isSelected = when (item.first) {
+                    "Home" -> currentRoute == Routes.Home.routes
+                    "MyCity" -> currentRoute == Routes.MyCity.routes
+                    "AcrossIndia" -> currentRoute == Routes.AcrossIndia.routes
+                    "Awareness" -> currentRoute == Routes.Awareness.routes
+                    else -> false
+                }
                 IconButton(
                     onClick = {
                         selectedIndex.value = index
@@ -158,14 +167,15 @@ fun BottomNavigationBar(navController: NavController) {
                             painter = painterResource(id = item.second),
                             contentDescription = item.first,
                             modifier = Modifier.size(20.dp),
-                            tint = if (selectedIndex.value == index) colorResource(id = R.color.main_color) else Color.Black
+
+                            tint = if (isSelected) colorResource(id = R.color.main_color) else Color.Black
                         )
                         Text(
                             text = item.first,
                             fontSize = 10.sp,
                             fontFamily = opansnaps,
                             fontWeight = FontWeight.Bold,
-                            color = if (selectedIndex.value == index) colorResource(id = R.color.main_color) else Color.Black
+                            color = if (isSelected) colorResource(id = R.color.main_color) else Color.Black
                         )
                     }
 
