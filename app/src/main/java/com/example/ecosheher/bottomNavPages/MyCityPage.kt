@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
 import android.location.Location
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -135,7 +136,6 @@ fun MyCityPage(navController: NavController) {
     }
 }
 
-
 @Composable
 fun ReportItem(report: Report, navController: NavController) {
     Card(
@@ -143,7 +143,15 @@ fun ReportItem(report: Report, navController: NavController) {
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                
+                Log.d("Navigation", "Navigating with Report: $report")  // Debugging
+                if (report.reportId.isNotBlank()) {
+                    val reportJson = Gson().toJson(report)
+                    val encodedJson = URLEncoder.encode(reportJson, StandardCharsets.UTF_8.toString())
+                        .replace("+", "%20")
+                    navController.navigate("${Routes.IssueDetails.routes}/$encodedJson")
+                } else {
+                    Log.e("Navigation", "Report ID is empty, cannot navigate")
+                }
             },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -151,7 +159,6 @@ fun ReportItem(report: Report, navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
                 .padding(10.dp)
         ) {
             Image(
@@ -172,6 +179,7 @@ fun ReportItem(report: Report, navController: NavController) {
         }
     }
 }
+
 
 
 @SuppressLint("MissingPermission")

@@ -21,4 +21,6 @@ sealed class Routes(val routes: String) {
 
     //Issue Details Screen
     object IssueDetails : Routes("issuedetails")
+
+    
 }

@@ -51,7 +51,7 @@ fun SetNavGraph(modifier: Modifier = Modifier, authViewModel: AuthViewModel){
             MyCityPage(navController)
         }
         composable(Routes.AcrossIndia.routes) {
-            AcrossIndiaPage()
+            AcrossIndiaPage(navController)
         }
         composable(Routes.Awareness.routes) {
             AwarenessPage()
