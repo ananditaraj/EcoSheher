@@ -25,6 +25,7 @@ Here’s a glimpse of our Civic App in action:
 - **Jetpack Compose** - Modern Android UI development
 
 ### 🔥 Backend:
+- **Cloudinary** - Image storing
 - **Firebase** - Authentication & hosting
 - **Firestore** - NoSQL Database
 - **Google API Integration** - Maps, Places & Location Services
